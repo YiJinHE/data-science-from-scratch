@@ -3,10 +3,11 @@ from collections import Counter, defaultdict
 from machine_learning import split_data
 import math, random, re, glob
 
+
 def tokenize(message):
-    message = message.lower()                       # convert to lowercase
-    all_words = re.findall("[a-z0-9']+", message)   # extract the words
-    return set(all_words)                           # remove duplicates
+    message = message.lower()  # convert to lowercase
+    all_words = re.findall("[a-z0-9']+", message)  # extract the words
+    return set(all_words)  # remove duplicates
 
 
 def count_words(training_set):
@@ -17,13 +18,15 @@ def count_words(training_set):
             counts[word][0 if is_spam else 1] += 1
     return counts
 
+
 def word_probabilities(counts, total_spams, total_non_spams, k=0.5):
-    """turn the word_counts into a list of triplets 
+    """turn the word_counts into a list of triplets
     w, p(w | spam) and p(w | ~spam)"""
     return [(w,
              (spam + k) / (total_spams + 2 * k),
              (non_spam + k) / (total_non_spams + 2 * k))
-             for w, (spam, non_spam) in counts.iteritems()]
+            for w, (spam, non_spam) in counts.iteritems()]
+
 
 def spam_probability(word_probs, message):
     message_words = tokenize(message)
@@ -31,8 +34,8 @@ def spam_probability(word_probs, message):
 
     for word, prob_if_spam, prob_if_not_spam in word_probs:
 
-        # for each word in the message, 
-        # add the log probability of seeing it 
+        # for each word in the message,
+        # add the log probability of seeing it
         if word in message_words:
             log_prob_if_spam += math.log(prob_if_spam)
             log_prob_if_not_spam += math.log(prob_if_not_spam)
@@ -42,39 +45,36 @@ def spam_probability(word_probs, message):
         else:
             log_prob_if_spam += math.log(1.0 - prob_if_spam)
             log_prob_if_not_spam += math.log(1.0 - prob_if_not_spam)
-            
+
     prob_if_spam = math.exp(log_prob_if_spam)
     prob_if_not_spam = math.exp(log_prob_if_not_spam)
     return prob_if_spam / (prob_if_spam + prob_if_not_spam)
 
 
 class NaiveBayesClassifier:
-
     def __init__(self, k=0.5):
         self.k = k
         self.word_probs = []
 
     def train(self, training_set):
-    
         # count spam and non-spam messages
-        num_spams = len([is_spam 
-                         for message, is_spam in training_set 
+        num_spams = len([is_spam
+                         for message, is_spam in training_set
                          if is_spam])
         num_non_spams = len(training_set) - num_spams
 
         # run training data through our "pipeline"
         word_counts = count_words(training_set)
-        self.word_probs = word_probabilities(word_counts, 
-                                             num_spams, 
+        self.word_probs = word_probabilities(word_counts,
+                                             num_spams,
                                              num_non_spams,
                                              self.k)
-                                             
+
     def classify(self, message):
         return spam_probability(self.word_probs, message)
 
 
 def get_subject_data(path):
-
     data = []
 
     # regex for stripping out the leading "Subject:" and any spaces after it
@@ -83,8 +83,8 @@ def get_subject_data(path):
     # glob.glob returns every filename that matches the wildcarded path
     for fn in glob.glob(path):
         is_spam = "ham" not in fn
-        
-        with open(fn,'r') as file:
+
+        with open(fn, 'r') as file:
             for line in file:
                 if line.startswith("Subject:"):
                     subject = subject_regex.sub("", line).strip()
@@ -92,26 +92,44 @@ def get_subject_data(path):
 
     return data
 
+
 def p_spam_given_word(word_prob):
     word, prob_if_spam, prob_if_not_spam = word_prob
     return prob_if_spam / (prob_if_spam + prob_if_not_spam)
 
-def train_and_test_model(path):
 
+def train_and_test_model(path):
     data = get_subject_data(path)
-    random.seed(0)      # just so you get the same answers as me
-    train_data, test_data = split_data(data, 0.75)    
+    random.seed(0)  # just so you get the same answers as me
+    train_data, test_data = split_data(data, 0.75)
 
     classifier = NaiveBayesClassifier()
     classifier.train(train_data)
 
     classified = [(subject, is_spam, classifier.classify(subject))
-              for subject, is_spam in test_data]
+                  for subject, is_spam in test_data]
 
-    counts = Counter((is_spam, spam_probability > 0.5) # (actual, predicted)
+    counts = Counter((is_spam, spam_probability > 0.5)  # (actual, predicted)
                      for _, is_spam, spam_probability in classified)
 
     print counts
+
+    print("---20150518 ex---")
+    msg = "I like to play computer."
+    msg2 = "I don't know how to do it."
+
+    print("---test begin---")
+    print(msg)
+    print(tokenize(msg))
+    a = classifier.classify(msg)
+    print (a)
+
+    print(msg2)
+    print(tokenize(msg2))
+    b = classifier.classify(msg2)
+    print (b)
+    print("---test end----")
+    print("---20150518 ex---\n")
 
     classified.sort(key=lambda row: row[2])
     spammiest_hams = filter(lambda row: not row[1], classified)[-5:]
