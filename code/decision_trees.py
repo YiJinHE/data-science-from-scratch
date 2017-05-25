@@ -134,6 +134,25 @@ if __name__ == "__main__":
         print key, partition_entropy_by(senior_inputs, key)
     print
 
+    print('phd=yes')
+    senior_inputs = [(input, label)
+                     for input, label in inputs if input["phd"] == "yes"]
+
+    for key in ['lang', 'tweets', 'phd']:
+        print key, partition_entropy_by(senior_inputs, key)
+    print
+
+    print('phd=no')
+    senior_inputs = [(input, label)
+                     for input, label in inputs if input["phd"] == "no"]
+
+    for key in ['lang', 'tweets', 'phd']:
+        print key, partition_entropy_by(senior_inputs, key)
+    print
+
+
+
+
     print "building the tree"
     tree = build_tree_id3(inputs)
     print tree
@@ -149,6 +168,20 @@ if __name__ == "__main__":
                  "lang" : "Java", 
                  "tweets" : "yes", 
                  "phd" : "yes"} )
+
+    print "Senior / Python / tweets / phd", classify(tree,
+         {"level": "Senior",
+                "lang": "Python",
+                "tweets": "yes",
+                "phd": "yes"})
+
+    print "Junior / Java / tweets / phd", classify(tree,
+         {"level": "Senior",
+                "lang": "Python",
+                "tweets": "yes",
+                "phd": "no"})
+
+
 
     print "Intern", classify(tree, { "level" : "Intern" } )
     print "Senior", classify(tree, { "level" : "Senior" } )
