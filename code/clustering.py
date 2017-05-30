@@ -47,7 +47,7 @@ def squared_clustering_errors(inputs, k):
     
     return sum(squared_distance(input,means[cluster])
                for input, cluster in zip(inputs, assignments))
-
+    plt.show()
 def plot_squared_clustering_errors(plt):
 
     ks = range(1, len(inputs) + 1)
@@ -58,16 +58,19 @@ def plot_squared_clustering_errors(plt):
     plt.xlabel("k")
     plt.ylabel("total squared error")
     plt.show()
-
+    plot_squared_clustering_errors(plt)
 #
 # using clustering to recolor an image
 #
 
 def recolor_image(input_file, k=5):
-
+    path_to_png_file = r"C:\Users\zxcvb\Desktop\3.png"
     img = mpimg.imread(path_to_png_file)
+    top_row = img[0]
+    top_left_pixel = top_row[0]
+    red, green, blue = top_left_pixel
     pixels = [pixel for row in img for pixel in row]
-    clusterer = KMeans(k)
+    clusterer = KMeans(5)
     clusterer.train(pixels) # this might take a while    
 
     def recolor(pixel):
@@ -123,7 +126,7 @@ def get_merge_order(cluster):
 def bottom_up_cluster(inputs, distance_agg=min):
     # start with every input a leaf cluster / 1-tuple
     clusters = [(input,) for input in inputs]
-    
+
     # as long as we have more than one cluster left...
     while len(clusters) > 1:
         # find the two closest clusters
@@ -147,7 +150,7 @@ def bottom_up_cluster(inputs, distance_agg=min):
 def generate_clusters(base_cluster, num_clusters):
     # start with a list with just the base cluster
     clusters = [base_cluster]
-    
+
     # as long as we don't have enough clusters yet...
     while len(clusters) < num_clusters:
         # choose the last-merged of our clusters
@@ -200,3 +203,9 @@ if __name__ == "__main__":
     base_cluster = bottom_up_cluster(inputs, max)
     for cluster in generate_clusters(base_cluster, 3):
         print get_values(cluster)
+
+    print
+    bottom_up_cluster(inputs, distance_agg=min)
+    plot_squared_clustering_errors(plt)
+    plt.plot(ks, errors)
+
