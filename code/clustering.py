@@ -63,15 +63,28 @@ def plot_squared_clustering_errors(plt):
 # using clustering to recolor an image
 #
 
-def recolor_image(input_file, k=5):
-    path_to_png_file = r"C:\Users\zxcvb\Desktop\3.png"
-    img = mpimg.imread(path_to_png_file)
-    top_row = img[0]
-    top_left_pixel = top_row[0]
-    red, green, blue = top_left_pixel
+def recolor_image(input_file, k=3):
+    img = mpimg.imread(input_file)
     pixels = [pixel for row in img for pixel in row]
-    clusterer = KMeans(5)
-    clusterer.train(pixels) # this might take a while    
+    clusterer = KMeans(k)
+    clusterer.train(pixels)  # this might take a while
+
+    def recolor(pixel):
+        cluster = clusterer.classify(pixel) # index of the closest cluster
+        return clusterer.means[cluster]     # mean of the closest cluster
+
+    new_img = [[recolor(pixel) for pixel in row]
+               for row in img]
+
+    plt.imshow(new_img)
+    plt.axis('off')
+    plt.show()
+
+def recolor_image1(input_file, k=5):
+    img = mpimg.imread(input_file)
+    pixels = [pixel for row in img for pixel in row]
+    clusterer = KMeans(k)
+    clusterer.train(pixels)  # this might take a while
 
     def recolor(pixel):
         cluster = clusterer.classify(pixel) # index of the closest cluster
@@ -187,8 +200,11 @@ if __name__ == "__main__":
         print k, squared_clustering_errors(inputs, k)
     print
 
-
+    #plot_squared_clustering_errors(plt)
     print "bottom up hierarchical clustering"
+
+    print "coler cluster"
+    recolor_image("/test/rainbow.png")
 
     base_cluster = bottom_up_cluster(inputs)
     print base_cluster
@@ -206,6 +222,6 @@ if __name__ == "__main__":
 
     print
     bottom_up_cluster(inputs, distance_agg=min)
-    plot_squared_clustering_errors(plt)
-    plt.plot(ks, errors)
+
+    #plt.plot(ks, errors)
 
