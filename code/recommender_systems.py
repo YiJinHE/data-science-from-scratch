@@ -18,7 +18,8 @@ users_interests = [
     ["C++", "deep learning", "artificial intelligence", "probability"],
     ["pandas", "R", "Python"],
     ["databases", "HBase", "Postgres", "MySQL", "MongoDB"],
-    ["libsvm", "regression", "support vector machines"]
+    ["libsvm", "regression", "support vector machines"],
+    ["R", "Java", "Python", "Big Data"]
 ]
 
 popular_interests = Counter(interest
@@ -133,6 +134,11 @@ if __name__ == "__main__":
     print popular_interests
     print
 
+    print "gabe like:", ["R", "Java", "Python", "Big Data"]
+    print most_popular_new_interests(["R", "Java", "Python", "Big Data"],max_results=7)
+    print
+
+
     print "Most Popular New Interests"
     print "already like:", ["NoSQL", "MongoDB", "Cassandra", "HBase", "Postgres"]
     print most_popular_new_interests(["NoSQL", "MongoDB", "Cassandra", "HBase", "Postgres"])
@@ -142,11 +148,11 @@ if __name__ == "__main__":
     print    
 
     print "User based similarity"
-    print "most similar to 0"
-    print most_similar_users_to(0)
+    print "most similar to 15"
+    print most_similar_users_to(15)
 
-    print "Suggestions for 0"
-    print user_based_suggestions(0)
+    print "Suggestions for 15"
+    print user_based_suggestions(15)
     print
 
     print "Item based similarity"
